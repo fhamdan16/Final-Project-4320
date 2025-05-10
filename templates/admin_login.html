@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Login{% endblock %}
+
+{% block content %}
+<div style="margin: 0 auto; max-width: 500px; border: 1px solid #aaa; padding: 30px; border-radius: 8px; background-color: #fdfdfd; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center;">Administrator Login</h2>
+
+    {% if error %}
+        <p style="color: red; text-align: center;">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=40) }}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=40) }}
+        </p>
+        <p style="text-align: center;">
+            {{ form.submit(class="btn") }}
+        </p>
+    </form>
+</div>
+{% endblock %}
