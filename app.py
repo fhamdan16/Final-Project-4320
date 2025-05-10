@@ -67,34 +67,14 @@ def admin_dashboard():
                 except SQLAlchemyError:
                     db.session.rollback()
     reservations = Reservation.query.all()
+    for r in reservations:
+        print(f"DEBUG: Reservation ID: {r.id}, Name: {r.passengerName}")
     seating_chart_data = get_seating_chart_data(reservations)
     total_sales = get_total_cost(reservations)
     return render_template('admin_dashboard.html',
                            reservations=reservations,
                            seating_chart_data=seating_chart_data,
                            total_sales=total_sales)
-
-def get_seating_chart_data(reservations):
-    chart = [['_' for _ in range(4)] for _ in range(12)]
-    for r in reservations:
-        ri = r.seatRow - 1
-        ci = r.seatColumn - 1
-        if 0 <= ri < 12 and 0 <= ci < 4:
-            chart[ri][ci] = 'X'
-    return chart
-
-def get_cost_matrix():
-    return [[100, 75, 50, 100] for _ in range(12)]
-
-def get_total_cost(reservations):
-    total = 0
-    cost_matrix = get_cost_matrix()
-    for r in reservations:
-        ri = r.seatRow - 1
-        ci = r.seatColumn - 1
-        if 0 <= ri < 12 and 0 <= ci < 4:
-            total += cost_matrix[ri][ci]
-    return total
 
 @app.route('/reserve', methods=['GET', 'POST'])
 def reserve():
@@ -142,7 +122,41 @@ def edit_reservation(reservation_id):
             flash(f"Could not update reservation: {e}", 'danger')
     return render_template('edit_reservation.html', form=form, reservation=reservation)
 
+@app.route('/debug_add')
+def debug_add():
+    if not Reservation.query.get(2):
+        new = Reservation(passengerName="Debug User", seatRow=1, seatColumn=1, eTicketNumber="debug123")
+        db.session.add(new)
+        db.session.commit()
+    return redirect(url_for('admin_dashboard'))
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template("404.html"), 404
+
+def get_seating_chart_data(reservations):
+    chart = [['_' for _ in range(4)] for _ in range(12)]
+    for r in reservations:
+        ri = r.seatRow - 1
+        ci = r.seatColumn - 1
+        if 0 <= ri < 12 and 0 <= ci < 4:
+            chart[ri][ci] = 'X'
+    return chart
+
+def get_cost_matrix():
+    return [[100, 75, 50, 100] for _ in range(12)]
+
+def get_total_cost(reservations):
+    total = 0
+    cost_matrix = get_cost_matrix()
+    for r in reservations:
+        ri = r.seatRow - 1
+        ci = r.seatColumn - 1
+        if 0 <= ri < 12 and 0 <= ci < 4:
+            total += cost_matrix[ri][ci]
+    return total
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(host = "0.0.0.0")
+    app.run(host="0.0.0.0")
