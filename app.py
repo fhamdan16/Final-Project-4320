@@ -35,7 +35,7 @@ class AdminLoginForm(FlaskForm):
 class ReservationForm(FlaskForm):
     passenger_name = StringField('Passenger Name', validators=[DataRequired()])
     seat_row = IntegerField('Row (1-12)', validators=[DataRequired(), NumberRange(min=1, max=12)])
-    seat_col = IntegerField('Column (1-4)', validators=[DataRequired(), NumberRange(min=1, max=4)])
+    seat_col = IntegerField('Seat (1-4)', validators=[DataRequired(), NumberRange(min=1, max=4)])
     submit = SubmitField('Reserve Seat')
 
 @app.route('/', methods=['GET'])
@@ -90,18 +90,22 @@ def reserve():
     form = ReservationForm()
     error = None
     reservation = None
+
     if form.validate_on_submit():
         name = form.passenger_name.data
         row = form.seat_row.data
         col = form.seat_col.data
+
         if Reservation.query.filter_by(seatRow=row, seatColumn=col).first():
             error = 'This seat is already reserved.'
         else:
             ticket = secrets.token_hex(8)
-            new = Reservation(passengerName=name,
-                              seatRow=row,
-                              seatColumn=col,
-                              eTicketNumber=ticket)
+            new = Reservation(
+                passengerName=name,
+                seatRow=row,
+                seatColumn=col,
+                eTicketNumber=ticket
+            )
             db.session.add(new)
             try:
                 db.session.commit()
@@ -109,7 +113,16 @@ def reserve():
             except SQLAlchemyError as e:
                 db.session.rollback()
                 error = f"Database error: {e}"
-    return render_template('reserve.html', form=form, error=error, reservation=reservation)
+                
+    seating_chart_data = get_seating_chart_data(Reservation.query.all())
+
+    return render_template(
+        'reserve.html',
+        form=form,
+        error=error,
+        reservation=reservation,
+        seating_chart_data=seating_chart_data
+    )
 
 @app.route('/edit/<int:reservation_id>', methods=['GET', 'POST'])
 def edit_reservation(reservation_id):
@@ -144,7 +157,7 @@ def not_found_error(error):
     return render_template("404.html"), 404
 
 def get_seating_chart_data(reservations):
-    chart = [['_' for _ in range(4)] for _ in range(12)]
+    chart = [['O' for _ in range(4)] for _ in range(12)]  # 12 rows of 4 seats each
     for r in reservations:
         ri = r.seatRow - 1
         ci = r.seatColumn - 1

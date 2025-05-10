@@ -3,34 +3,41 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<h1>Admin Dashboard</h1>
+<div style="margin: 0 auto; max-width: 800px; border: 1px solid #ccc; padding: 30px; border-radius: 8px; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center;">Administrator Login</h2>
+    <hr>
 
-<h2>Seating Chart</h2>
-<pre>
-{% for row in seating_chart_data %}
-    [{{ row|join(' ') }}]
-{% endfor %}
-</pre>
-
-<p><strong>Total Sales:</strong> ${{ total_sales }}</p>
-
-<h2>Reservation List</h2>
-{% if reservations %}
-<ul>
-    {% for res in reservations %}
-    <li>
-        {{ res.passengerName }} - Row: {{ res.seatRow }}, Column: {{ res.seatColumn }} - eTicket: {{ res.eTicketNumber }}
-        <a href="{{ url_for('edit_reservation', reservation_id=res.id) }}" class="edit-button">Edit</a>
-        <form method="POST" action="{{ url_for('admin_dashboard') }}" style="display:inline;">
-            <input type="hidden" name="eTicketNumber" value="{{ res.eTicketNumber }}">
-            <button type="submit" class="delete-button">Delete</button>
-        </form>
-    </li>
+    <h3>Seating Chart</h3>
+    <p>X = Reserved Seat · O = Available Seat</p>
+    <div style="display: inline-block; background-color: #eee; padding: 10px; border-radius: 8px; font-family: monospace;">
+    <pre style="margin: 0;">
+         1   2   3   4
+    {% for row in seating_chart_data %}
+    {{ "%2d" | format(loop.index) }} [ {{ row | join('  ') }} ]
     {% endfor %}
-</ul>
-{% else %}
-<p>No reservations yet.</p>
-{% endif %}
+    </pre>
+    </div>
 
-<p><a href="{{ url_for('index') }}">Back to Main Menu</a></p>
+    <p><strong>Total Sales:</strong> ${{ total_sales }}</p>
+
+    <h3>Reservation List</h3>
+    {% if reservations %}
+        <ul style="list-style-type: none; padding: 0;">
+            {% for res in reservations %}
+                <li style="margin-bottom: 12px; padding: 10px; background: #f9f9f9; border: 1px solid #ccc; border-radius: 5px;">
+                    <strong>{{ res.passengerName }}</strong>: Row {{ res.seatRow }} Seat {{ res.seatColumn }} – 
+                    Ticket Confirmation: {{ res.eTicketNumber }}
+                    <form method="POST" action="{{ url_for('admin_dashboard') }}" style="display: inline;">
+                        <input type="hidden" name="eTicketNumber" value="{{ res.eTicketNumber }}">
+                        <button type="submit" style="float: right; background-color: #d9534f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                            Delete Reservation
+                        </button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No reservations yet.</p>
+    {% endif %}
+</div>
 {% endblock %}

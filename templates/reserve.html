@@ -1,26 +1,51 @@
 {% extends "base.html" %}
-{% block title %}Reserve a Seat{% endblock %}
+
+{% block title %}Reserve Your Seat{% endblock %}
+
 {% block content %}
-<h1>Reserve a Seat</h1>
+<div style="margin: 0 auto; max-width: 800px; border: 1px solid #ccc; padding: 30px; border-radius: 8px; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
 
-{% if error %}
-    <p style="color:red">{{ error }}</p>
-{% endif %}
+    {% if reservation %}
+        <div style="background-color: #e0ffe0; border: 1px solid #b2d8b2; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0;">Reservation Successful!</h3>
+            <p>Thank you, <strong>{{ reservation.passengerName }}</strong>.</p>
+            <ul>
+                <li><strong>eTicket Number:</strong> {{ reservation.eTicketNumber }}</li>
+                <li><strong>Seat:</strong> Row {{ reservation.seatRow }}, Seat {{ reservation.seatColumn }}</li>
+            </ul>
+        </div>
+    {% endif %}
 
-{% if reservation %}
-    <h2>Reservation Successful!</h2>
-    <p>Thank you, {{ reservation.passengerName }}.</p>
-    <ul>
-        <li>eTicket: {{ reservation.eTicketNumber }}</li>
-        <li>Seat: Row {{ reservation.seatRow }}, Column {{ reservation.seatColumn }}</li>
-    </ul>
-{% endif %}
+    <h2 style="text-align: center;">Reserve Your Seat</h2>
+    <hr>
+    <h3>Seating Chart</h3>
+    <p>X = Reserved Seat · O = Available Seat</p>
 
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <p>{{ form.passenger_name.label }}<br>{{ form.passenger_name() }}</p>
-    <p>{{ form.seat_row.label }}<br>{{ form.seat_row() }}</p>
-    <p>{{ form.seat_col.label }}<br>{{ form.seat_col() }}</p>
-    <p>{{ form.submit() }}</p>
-</form>
+    <div style="display: flex; gap: 40px;">
+        <div style="flex: 1;">
+            <div style="background-color: #eee; padding: 10px; border-radius: 5px;">
+<pre style="margin: 0;">
+     1   2   3   4
+{% for row in seating_chart_data %}
+{{ "%2d"|format(loop.index) }} [ {{ row | join('  ') }} ]
+{% endfor %}
+</pre>
+            </div>
+        </div>
+
+        <div style="flex: 1;">
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <p>{{ form.passenger_name.label }}<br>{{ form.passenger_name(size=32) }}</p>
+                <p>{{ form.seat_row.label }}<br>{{ form.seat_row() }}</p>
+                <p>{{ form.seat_col.label }}<br>{{ form.seat_col() }}</p>
+                <p>{{ form.submit(class="btn") }}</p>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
