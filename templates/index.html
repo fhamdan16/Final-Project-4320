@@ -1,14 +1,18 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Main Menu</title>
-    </head>
+{% extends "base.html" %}
 
-    <body>
-        <h1>Welcome to the Trip Reservation System</h1>
-        <ul>
-            <li><a href="{{ url_for('reserve') }}">Reserve a Seat</a></li>
-            <li><a href="{{ url_for('admin_login') }}">Admin Login</a></li>
-        </ul>
-    </body>
-</html>
+{% block title %}Main Menu{% endblock %}
+
+{% block content %}
+<h1>IT-4320 Trip Reservation System</h1>
+<p>Use the dropdown to choose whether to reserve a seat or log in as admin.</p>
+
+<form action="{{ url_for('index_post') }}" method="post">
+    <label for="report">Choose Menu Option:</label><br>
+    <select name="report" id="report">
+        <option selected disabled>Choose an Option</option>
+        <option value="admin">Admin Login</option>
+        <option value="seat">Reserve a Seat</option>
+    </select><br><br>
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}

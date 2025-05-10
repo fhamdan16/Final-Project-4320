@@ -1,34 +1,32 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Admin Login</title>
-    </head>
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h1>Admin Dashboard</h1>
 
-    <body>
-        <h1>Admin Login</h1>
-        {% if error %}
-            <p style="color:red">{{ error }}</p>
-        {% endif %}
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            <p>
-                {{ form.username.label }}<br>
-                {{ form.username() }}
-                {% for error in form.username.errors %}
-                    <span style="color:red">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>
-                {{ form.password.label }}<br>
-                {{ form.password() }}
-                {% for error in form.password.errors %}
-                    <span style="color:red">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>
-                {{ form.submit() }}
-            </p>
+<h2>Seating Chart</h2>
+<pre>
+{% for row in seating_chart_data %}
+    [{{ row|join(' ') }}]
+{% endfor %}
+</pre>
+
+<p><strong>Total Sales:</strong> ${{ total_sales }}</p>
+
+<h2>Reservation List</h2>
+{% if reservations %}
+<ul>
+    {% for res in reservations %}
+    <li>
+        {{ res.passengerName }} - Row: {{ res.seatRow }}, Col: {{ res.seatColumn }} - eTicket: {{ res.eTicketNumber }}
+        <a href="{{ url_for('edit_reservation', reservation_id=res.id) }}">Edit</a>
+        <form method="POST" action="{{ url_for('admin_dashboard') }}" style="display:inline;">
+            <input type="hidden" name="eTicketNumber" value="{{ res.eTicketNumber }}">
+            <button type="submit">Delete</button>
         </form>
-        <p><a href="{{ url_for('index') }}">Back to Main Menu</a></p>
-    </body>
-</html>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No reservations yet.</p>
+{% endif %}
+{% endblock %}

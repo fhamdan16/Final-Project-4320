@@ -42,6 +42,15 @@ class ReservationForm(FlaskForm):
 def index():
     return render_template('index.html')
 
+@app.route('/', methods=['POST'])
+def index_post():
+    option = request.form.get('report')
+    if option == 'admin':
+        return redirect(url_for('admin_login'))
+    elif option == 'seat':
+        return redirect(url_for('reserve'))
+    return redirect(url_for('index'))
+
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
     form = AdminLoginForm()
@@ -159,4 +168,5 @@ def get_total_cost(reservations):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", port=5001)
+
